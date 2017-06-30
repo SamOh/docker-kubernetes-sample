@@ -78,7 +78,14 @@ kubectl get [pods/deployments/services/ingresses] # used to get a list of all in
 kubectl exec -it <podname> bash # Helpful debugging tool
 ```
 ## Tutorial
-In this tutorial, I will teach you how get a test application up and running locally on kubernetes. To do this we will first need to download all the necessary tools, then create a docker image with a dockerfile (and run the image to get a container), then write the appropriate yaml files to create a deployment, service, and ingress so that we can visit our test site. At the end we will also go through the ways to update an application (using kubernetes built in rollout feature) without any downtime for our site.
+In this tutorial, I will teach you how get a test application up and running locally on kubernetes. To do this we will first need to download all the necessary tools, then create a docker image with a dockerfile (and run the image to get a container), then write the appropriate yaml files to create a deployment, service, and ingress so that we can visit our test site. At the end we will also go through the ways to update an application (using kubernetes built in rollout feature) without any downtime for our site. Finally, I will briefly walk through the process of deploying onto actual kubernetes/aws rather than local (these two are very similar)
+
+### 1. Downloads
+First, pull this code locally if you haven't already.
+
+### 2. Docker Image
+
+### 3. 
 
 
 
