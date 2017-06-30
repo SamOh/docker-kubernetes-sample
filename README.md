@@ -21,21 +21,21 @@ Dockerfile: This is the file in an application that defines a portable image. In
 
 ### 4. Common Commands
 ```
-docker build -t friendlyname .         		                    # Create image using this directory's Dockerfile
-docker run -p 4000:80 friendlyname.         			        # Run "friendlyname" mapping port 4000 to 80
-docker run -d -p 4000:80 friendlyname            			    # Same thing, but in detached mode
+docker build -t friendlyname .         		                # Create image using this directory's Dockerfile
+docker run -p 4000:80 friendlyname.                # Run "friendlyname" mapping port 4000 to 80
+docker run -d -p 4000:80 friendlyname      			    # Same thing, but in detached mode
 docker ps                                                       # See a list of all running containers
 docker stop <hash>                                              # Gracefully stop the specified container
 docker ps -a                                                    # See a list of all containers, even the ones not running
 docker kill <hash>                                              # Force shutdown of the specified container
 docker rm <hash>                                                # Remove the specified container from this machine
-docker rm $(docker ps -a -q)                       		        # Remove all containers from this machine
+docker rm $(docker ps -a -q)               		        # Remove all containers from this machine
 docker images -a                                                # Show all images on this machine
-docker rmi <imagename>                                 		    # Remove the specified image from this machine
-docker rmi $(docker images -q)                          		# Remove all images from this machine
+docker rmi <imagename>                           		    # Remove the specified image from this machine
+docker rmi $(docker images -q)                         	# Remove all images from this machine
 docker login                                                    # Log in this CLI session using your Docker credentials
-docker tag <image> username/repository:tag   					# Tag <image> for upload to registry
-docker push username/repository:tag                				# Upload tagged image to registry
+docker tag <image> username/repository:tag   	# Tag <image> for upload to registry
+docker push username/repository:tag    			# Upload tagged image to registry
 ```
 
 
@@ -61,6 +61,8 @@ Replication Controllers: Framework for defining horizontally scaled pods. Respon
 
 Services: A unit that acts as a basic load balancer/ambassador for other containers. Way to interface with a group of containers. Allow you to simplify your container designs since they group together a logical collection of pods based on your labels.
 
+Ingress: A way to expose your application to the outside world.
+
 Minikube: lightweight Kubernetes implementation that creates a VM on local machine and deploys a simple cluster containing only one node
 
 Node: the workers that run applications (similar to workers in docker). It is a VM or physical computer that serves as a worker machine in a Kubernetes cluster. Each node has a Kubelet (an agent for managing the node and communicating with the Kubernetes master).
@@ -68,9 +70,15 @@ Node: the workers that run applications (similar to workers in docker). It is a 
 Master: the nodes/resource that coordinates the cluster. Coordinates all activities in cluster such as scheduling applications, maintaining applications’ desired state, scaling applications, and rolling out new updates (think of hexagon with hexagon in center as master and nodes all around)
 
 ### 4. Common Commands
-
+```
+kubectl config set-context 
+kubectl create -f <filename> --namespace=<namespace>  # This is 
+kubectl a
+kubectl get [pods/deployments/services/ingresses] # used to get a list of all instances of this resource in the current namespace
+kubectl exec -it <podname> bash # Helpful debugging tool
+```
 ## Tutorial
-In this tutorial, I will teach you how to create a docker image with a dockerfile.
+In this tutorial, I will teach you how get a test application up and running locally on kubernetes. To do this we will first need to download all the necessary tools, then create a docker image with a dockerfile (and run the image to get a container), then write the appropriate yaml files to create a deployment, service, and ingress so that we can visit our test site. At the end we will also go through the ways to update an application (using kubernetes built in rollout feature) without any downtime for our site.
 
 
 
