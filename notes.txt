@@ -1,0 +1,13 @@
+# pulling base image from dockerhub if not already saved locally (you can configure to pull from JPL registry too)
+FROM python:2.7
+
+# Create new directory and cd into it
+RUN mkdir -p /usr/src/app
+WORKDIR /usr/src/app
+
+# becuase we pulled from python base image, we can run pip to install flask
+RUN pip install flask
+
+# copy the apps content into our application and run it
+COPY ./app.py /user/src/app
+CMD ["python", "app.py"]
