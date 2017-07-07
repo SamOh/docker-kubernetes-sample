@@ -1,3 +1,4 @@
+------------------------- DOCKERFILE -------------------------
 # pulling base image from dockerhub if not already saved locally (you can configure to pull from JPL registry too)
 FROM python:2.7
 
@@ -5,9 +6,127 @@ FROM python:2.7
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
-# becuase we pulled from python base image, we can run pip to install flask
-RUN pip install flask
+# becuase we pulled from python base image, we can run pip to install the requirements
+COPY requirements.txt /usr/src/app/
+RUN pip install -r requirements.txt
+
+# set environment variable
+ENV FLASK_APP=app.py
 
 # copy the apps content into our application and run it
-COPY ./app.py /user/src/app
+COPY ./app.py /usr/src/app
 CMD ["python", "app.py"]
+
+
+------------------------- DOCKER COMMANDS TO USE -------------------------
+docker build -t tpt-app .
+docker run -it -p 5000:5000 tpt-app:latest
+docker images
+docker ps
+docker login registry.jpl.nasa.gov
+docker tag <image> username/repository:tag
+docker push username/repository:tag
+
+
+
+------------------------- MANIFESTS/TPT-NS.YML -------------------------
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: tpt-app
+
+------------------------- MANIFESTS/TPT-DEPLOY.YAML -------------------------
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+  labels:
+    run: tpt-app
+  name: tpt-app
+  namespace: tpt-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: tpt-app
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        run: tpt-app
+    spec:
+      containers:
+      - image: registry.jpl.nasa.gov/tpteam/<NAME>
+        imagePullPolicy: Always
+        name: tpt-app
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        terminationMessagePath: /dev/termination-log
+        resources:
+          limits:
+            cpu: 200m
+            memory: 2Gi
+          requests:
+            cpu: 200m
+            memory: 2Gi
+      dnsPolicy: ClusterFirst
+      imagePullSecrets:
+      - name: <USERNAME>-pull-secret
+      restartPolicy: Always
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+
+
+------------------------- MANIFESTS/TPT-SVC.YAML -------------------------
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    run: tpt-app
+  name: tpt-app
+  namespace: tpt-app
+spec:
+  ports:
+  - protocol: TCP
+    port: 443
+    targetPort: 9000
+  selector:
+    run: tpt-app
+  sessionAffinity: None
+  type: ClusterIP
+status:
+  loadBalancer: {}
+
+------------------------- MANIFESTS/TPT-ING.YAML -------------------------
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: tpt-app
+  namespace: tpt-app
+spec:
+  rules:
+  - http:
+      paths:
+      - backend:
+          serviceName: tpt-app
+          servicePort: 443
+        path: /
+status:
+  loadBalancer: {}
+
+
+------------------------- MANIFESTS/<USER>-secret.YAML -------------------------
+Go to the registry and download the file they have as your secret.
+
+
+------------------------- KUBERNETES COMMANDS TO USE -------------------------
+Kubectl ...
+
+

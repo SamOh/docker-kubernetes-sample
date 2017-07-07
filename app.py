@@ -2,6 +2,7 @@ from flask import Flask
 
 app = Flask(__name__)
 
+# extremely simple flask app
 @app.route('/', methods=['GET'])
 def home():
     return 'Go TPT!'
