@@ -1,0 +1,7 @@
+Kubectl get po/deploy/svc/ing/ns
+Kubectl apply –f <FILENAME>
+Kubectl exec –it <POD> bash
+Kubectl config set-context minikube –namespace=tpt-app
+Kubectl logs <pod ID>
+kubectl edit [pods/deployments/services/ingresses] <resource name>
+kubectl rollout status deploy <deployment name>

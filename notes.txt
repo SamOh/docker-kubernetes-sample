@@ -2,6 +2,8 @@
 # pulling base image from dockerhub if not already saved locally (you can configure to pull from JPL registry too)
 FROM python:2.7
 
+BREAK (RUN HERE TO HAVE JUST A CONTAINER WITH PYTHON)
+
 # Create new directory and cd into it
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
@@ -31,7 +33,9 @@ docker push username/repository:tag
 
 ------------------------- MANIFESTS/TPT-NS.YML -------------------------
 apiVersion: v1
+# the "kind" just explains the resource youre building, in this case, the namespace
 kind: Namespace
+# The metadata here just stores the name of the namespace
 metadata:
   name: tpt-app
 
@@ -39,19 +43,20 @@ metadata:
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  annotations:
-    deployment.kubernetes.io/revision: "1"
   labels:
     run: tpt-app
   name: tpt-app
   namespace: tpt-app
 spec:
+# List the number of replicas you want of this pod
   replicas: 1
   selector:
     matchLabels:
       run: tpt-app
+# We want rollingUpdates as the update strategy
   strategy:
     rollingUpdate:
+      # These settings for the rollingupdate list the maxunavailable/maxextra number of pods during a rollingupdate
       maxSurge: 1
       maxUnavailable: 1
     type: RollingUpdate
@@ -62,13 +67,17 @@ spec:
         run: tpt-app
     spec:
       containers:
+      # This is where you would include env variables, and also where you indicate where to pull the image from
       - image: registry.jpl.nasa.gov/<NAME>
+        # This setting determines when you should pull the image (Always, IfNotPresent, Never)
         imagePullPolicy: Always
         name: tpt-app
+        # Indicate the container port for the pods
         ports:
         - containerPort: 8080
           protocol: TCP
         terminationMessagePath: /dev/termination-log
+        # Best practice is to include a resource limit (so pods cannot overuse compute resources)
         resources:
           limits:
             cpu: 200m
@@ -77,8 +86,10 @@ spec:
             cpu: 200m
             memory: 2Gi
       dnsPolicy: ClusterFirst
+      # This setting pulls secrets from your kubernetes secret in order to provide credentials for the registry
       imagePullSecrets:
       - name: <USERNAME>-pull-secret
+      # always restart when pod goes down
       restartPolicy: Always
       securityContext: {}
       terminationGracePeriodSeconds: 30
@@ -86,6 +97,7 @@ spec:
 
 ------------------------- MANIFESTS/TPT-SVC.YAML -------------------------
 apiVersion: v1
+# need to define the kind of resource you'd like
 kind: Service
 metadata:
   labels:
@@ -95,8 +107,10 @@ metadata:
 spec:
   ports:
   - protocol: TCP
+  	# this is the service port that is open (that the ingress will use)
     port: 443
-    targetPort: 9000
+    # This is the container port that the svc is connected to.
+    targetPort: 5000
   selector:
     run: tpt-app
   sessionAffinity: None
@@ -115,6 +129,7 @@ spec:
   - http:
       paths:
       - backend:
+      # Indicate which service/port to connect to
           serviceName: tpt-app
           servicePort: 443
         path: /
