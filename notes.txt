@@ -56,7 +56,7 @@ spec:
 # We want rollingUpdates as the update strategy
   strategy:
     rollingUpdate:
-      # These settings for the rollingupdate list the maxunavailable/maxextra number of pods during a rollingupdate
+      # These settings for the rollingupdate list the maxunavailable/maxextra number of pods during a rollingupdate. These can be absolute numbers (e.g. 1) or relative percents (e.g. 25%) which are rounded down
       maxSurge: 1
       maxUnavailable: 1
     type: RollingUpdate
@@ -138,7 +138,7 @@ status:
 
 
 ------------------------- MANIFESTS/<USER>-secret.YAML -------------------------
-Go to the registry and download the file they have as your secret.
+Go to the registry and download the file they have as your secret. You can find this file by going to user settings, then click generate encrypted password, and then finally copy the kubernetes key secret.
 
 
 ------------------------- KUBERNETES COMMANDS TO USE -------------------------
