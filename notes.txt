@@ -21,38 +21,38 @@ CMD ["python", "app.py"]
 
 
 ------------------------- DOCKER COMMANDS TO USE -------------------------
-docker build -t tpt-app .
-docker run -it -p 5000:5000 tpt-app:latest
+docker build -t hello-app .
+docker run -it -p 5000:5000 hello-app:latest
 docker images
 docker ps
-docker login registry.jpl.nasa.gov
+docker login
 docker tag <image> username/repository:tag
 docker push username/repository:tag
 
 
 
-------------------------- MANIFESTS/TPT-NS.YML -------------------------
+------------------------- MANIFESTS/hello-NS.YML -------------------------
 apiVersion: v1
 # the "kind" just explains the resource youre building, in this case, the namespace
 kind: Namespace
 # The metadata here just stores the name of the namespace
 metadata:
-  name: tpt-app
+  name: hello-app
 
-------------------------- MANIFESTS/TPT-DEPLOY.YAML -------------------------
+------------------------- MANIFESTS/hello-DEPLOY.YAML -------------------------
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   labels:
-    run: tpt-app
-  name: tpt-app
-  namespace: tpt-app
+    run: hello-app
+  name: hello-app
+  namespace: hello-app
 spec:
 # List the number of replicas you want of this pod
   replicas: 1
   selector:
     matchLabels:
-      run: tpt-app
+      run: hello-app
 # We want rollingUpdates as the update strategy
   strategy:
     rollingUpdate:
@@ -64,14 +64,14 @@ spec:
     metadata:
       creationTimestamp: null
       labels:
-        run: tpt-app
+        run: hello-app
     spec:
       containers:
       # This is where you would include env variables, and also where you indicate where to pull the image from
-      - image: registry.jpl.nasa.gov/<NAME>
+      - image: <PUT REG ONE HERE>
         # This setting determines when you should pull the image (Always, IfNotPresent, Never)
         imagePullPolicy: Always
-        name: tpt-app
+        name: hello-app
         # Indicate the container port for the pods
         ports:
         - containerPort: 8080
@@ -86,24 +86,21 @@ spec:
             cpu: 200m
             memory: 2Gi
       dnsPolicy: ClusterFirst
-      # This setting pulls secrets from your kubernetes secret in order to provide credentials for the registry
-      imagePullSecrets:
-      - name: <USERNAME>-pull-secret
       # always restart when pod goes down
       restartPolicy: Always
       securityContext: {}
       terminationGracePeriodSeconds: 30
 
 
-------------------------- MANIFESTS/TPT-SVC.YAML -------------------------
+------------------------- MANIFESTS/hello-SVC.YAML -------------------------
 apiVersion: v1
 # need to define the kind of resource you'd like
 kind: Service
 metadata:
   labels:
-    run: tpt-app
-  name: tpt-app
-  namespace: tpt-app
+    run: hello-app
+  name: hello-app
+  namespace: hello-app
 spec:
   ports:
   - protocol: TCP
@@ -112,25 +109,25 @@ spec:
     # This is the container port that the svc is connected to.
     targetPort: 5000
   selector:
-    run: tpt-app
+    run: hello-app
   sessionAffinity: None
   type: ClusterIP
 status:
   loadBalancer: {}
 
-------------------------- MANIFESTS/TPT-ING.YAML -------------------------
+------------------------- MANIFESTS/hello-ING.YAML -------------------------
 apiVersion: extensions/v1beta1
 kind: Ingress  
 metadata:
-  name: tpt-app
-  namespace: tpt-app
+  name: hello-app
+  namespace: hello-app
 spec:
   rules:
   - http:
       paths:
       - backend:
       # Indicate which service/port to connect to
-          serviceName: tpt-app
+          serviceName: hello-app
           servicePort: 443
         path: /
 status:
@@ -142,7 +139,7 @@ Go to the registry and download the file they have as your secret. You can find 
 
 
 ------------------------- KUBERNETES COMMANDS TO USE -------------------------
-Kubectl config set-context minikube –namespace=tpt-app
+Kubectl config set-context minikube –namespace=hello-app
 
 
 
